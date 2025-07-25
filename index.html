@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificación de Hallazgos de Auditoría</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .section h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .hallazgo-type {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .hallazgo-type:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .conforme {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border-left-color: #22543d;
+        }
+
+        .no-conforme {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+            border-left-color: #742a2a;
+        }
+
+        .potencial {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+            border-left-color: #7b341e;
+        }
+
+        .observacion {
+            background: linear-gradient(135deg, #ecc94b, #d69e2e);
+            color: white;
+            border-left-color: #744210;
+        }
+
+        .mejora {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border-left-color: #2a4365;
+        }
+
+        .fortaleza {
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
+            color: white;
+            border-left-color: #44337a;
+        }
+
+        .criterios-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .criterio {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .criterio:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .priorizacion-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .priorizacion-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .tabla-priorizacion {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tabla-header {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            color: white;
+            font-weight: bold;
+        }
+
+        .header-cell {
+            padding: 15px;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header-cell:last-child {
+            border-right: none;
+        }
+
+        .tabla-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tabla-row:hover {
+            background: #f7fafc;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tabla-row:last-child {
+            border-bottom: none;
+        }
+
+        .criterio-cell {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-right: 1px solid #e2e8f0;
+            background: #f8f9fa;
+        }
+
+        .criterio-icon {
+            font-size: 1.2rem;
+        }
+
+        .descripcion-cell {
+            padding: 15px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+
+        .tabla-row.impacto:hover .criterio-cell {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+        }
+
+        .tabla-row.urgencia:hover .criterio-cell {
+            background: linear-gradient(135deg, #feebc8, #fbd38d);
+        }
+
+        .tabla-row.criticidad:hover .criterio-cell {
+            background: linear-gradient(135deg, #e9d8fd, #d6bcfa);
+        }
+
+        .footer {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .logo-section {
+            flex-shrink: 0;
+        }
+
+        .logo-section svg {
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .logo-section svg:hover {
+            transform: scale(1.05);
+        }
+
+        .credits-section {
+            text-align: center;
+            color: #2d3748;
+        }
+
+        .credits-section p {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .credits-section .author {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e4a8c;
+            margin-bottom: 5px;
+        }
+
+        .credits-section .institution {
+            font-size: 1rem;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        .criterio h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .criterio p {
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .ejemplos-section {
+            grid-column: span 2;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .ejemplo {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ejemplo.negativo {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            border-left: 5px solid #e53e3e;
+        }
+
+        .ejemplo.positivo {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            border-left: 5px solid #38a169;
+        }
+
+        .ejemplo:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .ejemplo h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .ejemplo-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed #cbd5e0;
+        }
+
+        .ejemplo-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modelo-amorms {
+            background: linear-gradient(135deg, #553c9a, #b794f6);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .escala-amorms {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .escala-item {
+            text-align: center;
+            flex: 1;
+            padding: 5px;
+        }
+
+        .toggle-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .toggle-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ejemplos-section {
+                grid-column: span 1;
+            }
+            
+            .criterios-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabla-priorizacion {
+                font-size: 0.9rem;
+            }
+            
+            .criterio-cell, .descripcion-cell {
+                padding: 12px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .logo-section svg {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .credits-section .author {
+                font-size: 1.1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Clasificación de Hallazgos de Auditoría</h1>
+            <p>Guía interactiva para la evaluación y priorización de hallazgos en auditorías de mantenimiento y gestión de activos</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="section">
+                <h2>📋 Tipos de Hallazgos</h2>
+                
+                <div class="hallazgo-type conforme" onclick="showDetails('conforme')">
+                    <h3>✅ Conforme</h3>
+                    <p>Procesos que cumplen con los requisitos establecidos</p>
+                </div>
+
+                <div class="hallazgo-type no-conforme" onclick="showDetails('no-conforme')">
+                    <h3>❌ No Conforme</h3>
+                    <p>Incumplimiento de criterios de auditoría</p>
+                </div>
+
+                <div class="hallazgo-type potencial" onclick="showDetails('potencial')">
+                    <h3>⚠️ No Conformidad Potencial</h3>
+                    <p>Riesgo que podría afectar el cumplimiento</p>
+                </div>
+
+                <div class="hallazgo-type observacion" onclick="showDetails('observacion')">
+                    <h3>👁️ Observación</h3>
+                    <p>Riesgo que podría materializarse si no se actúa</p>
+                </div>
+
+                <div class="hallazgo-type mejora" onclick="showDetails('mejora')">
+                    <h3>🚀 Oportunidad de Mejora</h3>
+                    <p>Aspectos optimizables para mejor desempeño</p>
+                </div>
+
+                <div class="hallazgo-type fortaleza" onclick="showDetails('fortaleza')">
+                    <h3>⭐ Buenas Prácticas</h3>
+                    <p>Prácticas que van más allá de los requisitos</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Criterios de Evaluación</h2>
+                
+                <div class="criterios-grid">
+                    <div class="criterio">
+                        <h4>📈 Suficiencia</h4>
+                        <p>Cantidad de evidencia recopilada</p>
+                        <small>Escala: Nula → Muy Alta</small>
+                    </div>
+                    
+                    <div class="criterio">
+                        <h4>🎯 Relevancia</h4>
+                        <p>Importancia e impacto de la evidencia</p>
+                        <small>Escala: Muy Baja → Muy Alta</small>
+                    </div>
+                    
+                    <div class="criterio">
+                        <h4>✓ Validez</h4>
+                        <p>Relación directa con el objetivo</p>
+                        <small>Binaria: Válida / No Válida</small>
+                    </div>
+                </div>
+
+                <div class="priorizacion-section">
+                    <h3>🔥 Criterios de Priorización</h3>
+                    <div class="tabla-priorizacion">
+                        <div class="tabla-header">
+                            <div class="header-cell">Criterio</div>
+                            <div class="header-cell">Descripción</div>
+                        </div>
+                        
+                        <div class="tabla-row impacto" onclick="showPriorityDetail('impacto')">
+                            <div class="criterio-cell">
+                                <span class="criterio-icon">💥</span>
+                                <strong>Impacto</strong>
+                            </div>
+                            <div class="descripcion-cell">
+                                Grado de afectación al negocio, seguridad, medioambiente o calidad
+                            </div>
+                        </div>
+                        
+                        <div class="tabla-row urgencia" onclick="showPriorityDetail('urgencia')">
+                            <div class="criterio-cell">
+                                <span class="criterio-icon">⏰</span>
+                                <strong>Urgencia</strong>
+                            </div>
+                            <div class="descripcion-cell">
+                                Tiempo máximo en que debe resolverse el hallazgo
+                            </div>
+                        </div>
+                        
+                        <div class="tabla-row criticidad" onclick="showPriorityDetail('criticidad')">
+                            <div class="criterio-cell">
+                                <span class="criterio-icon">🔴</span>
+                                <strong>Criticidad</strong>
+                            </div>
+                            <div class="descripcion-cell">
+                                Resultado de combinar impacto + probabilidad de ocurrencia + consecuencias
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modelo-amorms">
+                    <h3>🎯 Modelo AMORMS</h3>
+                    <p>Evaluación de gestión de mantenimiento y activos</p>
+                    <div class="escala-amorms">
+                        <div class="escala-item">
+                            <strong>1</strong><br>Muy Pobre
+                        </div>
+                        <div class="escala-item">
+                            <strong>2</strong><br>Pobre
+                        </div>
+                        <div class="escala-item">
+                            <strong>3</strong><br>Promedio
+                        </div>
+                        <div class="escala-item">
+                            <strong>4</strong><br>Bueno
+                        </div>
+                        <div class="escala-item">
+                            <strong>5</strong><br>Clase Mundial
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ejemplos-section">
+            <h2>📝 Ejemplos Prácticos</h2>
+            
+            <div class="ejemplo negativo" onclick="toggleExample('ejemplo1')">
+                <h4>❌ Hallazgo No Conforme - Capacitación sin Evaluación</h4>
+                <p>Caso de una planta cementera donde no se evaluó la eficacia de las capacitaciones</p>
+                <button class="toggle-btn">Ver Detalles</button>
+                
+                <div class="ejemplo-content" id="ejemplo1">
+                    <h5>📍 Evidencia Objetiva:</h5>
+                    <p>Se revisaron los registros de capacitación en el área de mantenimiento de la planta de Trituración y Cuarteo de material, correspondientes al programa "Mantenimiento Preventivo de Equipos Críticos" (10 sep 2024). <strong>No existe evidencia documentada que acredite la evaluación de la eficacia de dicha capacitación.</strong></p>
+                    
+                    <h5>⚖️ Declaración de No Conformidad:</h5>
+                    <p>Incumpliendo lo establecido en el numeral 7.2 de la norma ISO 9001:2015, que requiere evaluar la eficacia de las acciones para adquirir competencia.</p>
+                    
+                    <h5>🔧 Acción Correctiva Sugerida:</h5>
+                    <ul>
+                        <li>Definir y documentar procedimiento de evaluación de eficacia</li>
+                        <li>Implementar evaluaciones para todas las capacitaciones relevantes</li>
+                        <li>Capacitar al personal responsable en la aplicación del procedimiento</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="ejemplo positivo" onclick="toggleExample('ejemplo2')">
+                <h4>⭐ Hallazgo Fortaleza - Gestión de Activos Clase Mundial</h4>
+                <p>Planta termoeléctrica con alto nivel de madurez en gestión de activos</p>
+                <button class="toggle-btn">Ver Detalles</button>
+                
+                <div class="ejemplo-content" id="ejemplo2">
+                    <h5>📍 Evidencia Objetiva:</h5>
+                    <p>La organización demostró un <strong>alto nivel de madurez y conocimiento</strong> en gestión de activos, reflejado en su <strong>certificación ISO 55001</strong> (2018). Puntuación promedio de <strong>4.65</strong> en "Gestión de Activos, Objetivos del Negocio (KPIs) y Organización de Soporte" en auditoría AMORMS.</p>
+                    
+                    <h5>🌟 Declaración de Fortaleza:</h5>
+                    <p>La organización <strong>cumple y supera las expectativas</strong> establecidas en los criterios de auditoría para gestión de activos, evidenciando compromiso sólido y liderazgo eficaz.</p>
+                    
+                    <h5>🚀 Sugerencia de Mejora Continua:</h5>
+                    <ul>
+                        <li>Mantener la cultura de excelencia en gestión de activos</li>
+                        <li>Utilizar como modelo para mejorar otras áreas con menores puntuaciones</li>
+                        <li>Promover intercambio de conocimientos y mejores prácticas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie de página con logo y créditos -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="logo-section">
+                    <svg width="80" height="80" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Círculo azul de fondo -->
+                        <circle cx="200" cy="200" r="180" fill="#1e4a8c" stroke="#0f2c5c" stroke-width="4"/>
+                        
+                        <!-- Rayos del sol en amarillo/naranja -->
+                        <g transform="translate(200,200)">
+                            <!-- 16 rayos distribuidos uniformemente -->
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(0)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(22.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(45)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(67.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(90)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(112.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(135)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(157.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(180)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(202.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(225)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(247.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(270)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(292.5)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(315)"/>
+                            <polygon points="0,-150 10,-120 -10,-120" fill="#ffa500" transform="rotate(337.5)"/>
+                        </g>
+                        
+                        <!-- Círculo interior rojo -->
+                        <circle cx="200" cy="200" r="85" fill="#dc143c" stroke="#8b0000" stroke-width="3"/>
+                        
+                        <!-- Círculo blanco interior -->
+                        <circle cx="200" cy="200" r="65" fill="white" stroke="#333" stroke-width="2"/>
+                        
+                        <!-- Símbolo central - Rosa de los vientos estilizada -->
+                        <g transform="translate(200,200)" fill="#333">
+                            <!-- Cruz principal -->
+                            <rect x="-3" y="-45" width="6" height="90" fill="#333"/>
+                            <rect x="-45" y="-3" width="90" height="6" fill="#333"/>
+                            
+                            <!-- Cruz diagonal -->
+                            <rect x="-3" y="-32" width="6" height="64" fill="#333" transform="rotate(45)"/>
+                            <rect x="-3" y="-32" width="6" height="64" fill="#333" transform="rotate(-45)"/>
+                            
+                            <!-- Puntas decorativas -->
+                            <polygon points="0,-45 8,-35 0,-30 -8,-35" fill="#333"/>
+                            <polygon points="45,0 35,8 30,0 35,-8" fill="#333"/>
+                            <polygon points="0,45 -8,35 0,30 8,35" fill="#333"/>
+                            <polygon points="-45,0 -35,-8 -30,0 -35,8" fill="#333"/>
+                            
+                            <!-- Círculo central -->
+                            <circle cx="0" cy="0" r="8" fill="#333"/>
+                        </g>
+                        
+                        <!-- Texto curvo (simulado con texto recto por simplicidad) -->
+                        <text x="200" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#8b0000">UNIVERSIDAD SANTO TOMÁS</text>
+                        <text x="200" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#8b0000">PRIMER CLAUSTRO UNIVERSITARIO</text>
+                    </svg>
+                </div>
+                <div class="credits-section">
+                    <p><strong>Presentado por:</strong></p>
+                    <p class="author">Guillermo Alberto Suárez Pardo</p>
+                    <p class="institution">Universidad Santo Tomás</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles de tipos de hallazgos -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        function showDetails(type) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            
+            const details = {
+                'conforme': {
+                    title: '✅ Hallazgo Conforme',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Se presenta cuando los procesos o el sistema auditado están cumpliendo con un requisito o criterio establecido.</p>
+                        
+                        <h3>Características</h3>
+                        <ul>
+                            <li>Evidencia objetiva de cumplimiento</li>
+                            <li>Demuestra que se han auditado todos los puntos del plan</li>
+                            <li>Requiere competencia del auditor para su declaración</li>
+                        </ul>
+                        
+                        <h3>Propósito</h3>
+                        <p>Un auditor competente debe ser capaz de declarar hallazgos conformes para evidenciar una auditoría completa y balanceada.</p>
+                    `
+                },
+                'no-conforme': {
+                    title: '❌ Hallazgo No Conforme',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Ocurre cuando no se cumple un criterio (norma, requisito, política, etc.) de la auditoría, indicando una brecha en el sistema de gestión.</p>
+                        
+                        <h3>Elementos Requeridos</h3>
+                        <ul>
+                            <li><strong>Evidencia objetiva clara e irrefutable</strong></li>
+                            <li><strong>Declaración de incumplimiento</strong></li>
+                            <li><strong>Conexión con el criterio de auditoría</strong></li>
+                        </ul>
+                        
+                        <h3>Impacto</h3>
+                        <p>Puede afectar la satisfacción de las partes interesadas y requiere acciones correctivas inmediatas.</p>
+                    `
+                },
+                'potencial': {
+                    title: '⚠️ No Conformidad Potencial',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Se identifican cuando existe un riesgo en los procesos del sistema de gestión que podría afectar el cumplimiento de sus objetivos.</p>
+                        
+                        <h3>Características</h3>
+                        <ul>
+                            <li>Identificación proactiva de riesgos</li>
+                            <li>Prevención de no conformidades futuras</li>
+                            <li>Generan oportunidades de mejora</li>
+                        </ul>
+                        
+                        <h3>Acciones</h3>
+                        <p>Generan oportunidades de mejora o acciones preventivas para evitar que se materialicen en no conformidades reales.</p>
+                    `
+                },
+                'observacion': {
+                    title: '👁️ Observación',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Similar a una no conformidad potencial, es un riesgo que no llega a ser una no conformidad actual, pero que podría materializarse si no se toman acciones.</p>
+                        
+                        <h3>Propósito</h3>
+                        <ul>
+                            <li>Alertar sobre riesgos identificados</li>
+                            <li>Facilitar la toma de decisiones preventivas</li>
+                            <li>Mantener la atención en áreas sensibles</li>
+                        </ul>
+                        
+                        <h3>Seguimiento</h3>
+                        <p>Requiere monitoreo continuo para evitar que evolucione hacia una no conformidad real.</p>
+                    `
+                },
+                'mejora': {
+                    title: '🚀 Oportunidad de Mejora',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Un aspecto que, aunque no constituye un incumplimiento de la norma, podría optimizarse para mejorar el desempeño global del sistema.</p>
+                        
+                        <h3>Características</h3>
+                        <ul>
+                            <li>No representa incumplimiento normativo</li>
+                            <li>Basada en el juicio profesional del auditor</li>
+                            <li>Orientada a la optimización del sistema</li>
+                        </ul>
+                        
+                        <h3>Beneficios</h3>
+                        <p>Contribuye a la mejora continua y al desarrollo de ventajas competitivas en la organización.</p>
+                    `
+                },
+                'fortaleza': {
+                    title: '⭐ Buenas Prácticas (Fortalezas)',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Se identifican cuando la organización no solo cumple con las normas o requisitos establecidos, sino que va más allá, generando valor agregado.</p>
+                        
+                        <h3>Propósito</h3>
+                        <ul>
+                            <li>Reconocimiento de prácticas excepcionales</li>
+                            <li>Fomento de comportamientos positivos</li>
+                            <li>Construcción de marca positiva</li>
+                        </ul>
+                        
+                        <h3>Valor Estratégico</h3>
+                        <p>Estas prácticas pueden servir como modelo para replicar en otras áreas de la organización y crear diferenciación competitiva.</p>
+                    `
+                },
+                'impacto': {
+                    title: '💥 Criterio de Impacto',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Grado de afectación al negocio, seguridad, medioambiente o calidad que puede generar un hallazgo.</p>
+                        
+                        <h3>Dimensiones de Evaluación</h3>
+                        <ul>
+                            <li><strong>Impacto en el Negocio:</strong> Afectación a la rentabilidad, productividad o continuidad operacional</li>
+                            <li><strong>Impacto en Seguridad:</strong> Riesgo para la integridad física de las personas</li>
+                            <li><strong>Impacto Medioambiental:</strong> Potencial daño al ecosistema o incumplimiento normativo ambiental</li>
+                            <li><strong>Impacto en Calidad:</strong> Afectación a la calidad del producto o servicio</li>
+                        </ul>
+                        
+                        <h3>Escalas de Medición</h3>
+                        <p>Generalmente se evalúa en escalas de 1-5 donde: 1=Muy Bajo, 2=Bajo, 3=Medio, 4=Alto, 5=Muy Alto</p>
+                    `
+                },
+                'urgencia': {
+                    title: '⏰ Criterio de Urgencia',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Tiempo máximo en que debe resolverse el hallazgo para evitar consecuencias adversas.</p>
+                        
+                        <h3>Categorías Temporales</h3>
+                        <ul>
+                            <li><strong>Inmediata:</strong> Requiere acción en 24-48 horas</li>
+                            <li><strong>Corto Plazo:</strong> Resolución en 1-4 semanas</li>
+                            <li><strong>Mediano Plazo:</strong> Resolución en 1-3 meses</li>
+                            <li><strong>Largo Plazo:</strong> Resolución en 3-12 meses</li>
+                        </ul>
+                        
+                        <h3>Factores Determinantes</h3>
+                        <ul>
+                            <li>Riesgo de escalamiento del problema</li>
+                            <li>Disponibilidad de recursos</li>
+                            <li>Complejidad de la solución requerida</li>
+                            <li>Dependencias con otros procesos</li>
+                        </ul>
+                    `
+                },
+                'criticidad': {
+                    title: '🔴 Criterio de Criticidad',
+                    content: `
+                        <h3>Definición</h3>
+                        <p>Resultado de combinar impacto + probabilidad de ocurrencia + consecuencias para determinar la prioridad absoluta del hallazgo.</p>
+                        
+                        <h3>Fórmula de Cálculo</h3>
+                        <div style="background: #e2e8f0; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            <strong>Criticidad = Impacto × Probabilidad × Consecuencias</strong>
+                        </div>
+                        
+                        <h3>Matriz de Criticidad</h3>
+                        <ul>
+                            <li><strong>Crítico (9-25):</strong> Requiere acción inmediata y recursos prioritarios</li>
+                            <li><strong>Alto (6-8):</strong> Importante, planificar acción en corto plazo</li>
+                            <li><strong>Medio (3-5):</strong> Moderado, incluir en planes regulares</li>
+                            <li><strong>Bajo (1-2):</strong> Menor prioridad, puede posponerse</li>
+                        </ul>
+                        
+                        <h3>Aplicación Práctica</h3>
+                        <p>La criticidad permite a los equipos de auditoría y la alta dirección asignar recursos de manera eficiente, priorizando los hallazgos que representan mayor riesgo para la organización.</p>
+                    `
+                }
+            };
+            
+            modalBody.innerHTML = `
+                <h2>${details[type].title}</h2>
+                ${details[type].content}
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function showPriorityDetail(criterio) {
+            showDetails(criterio);
+        }
+
+        function toggleExample(exampleId) {
+            const content = document.getElementById(exampleId);
+            const isActive = content.classList.contains('active');
+            
+            // Cerrar todos los ejemplos
+            document.querySelectorAll('.ejemplo-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Abrir el ejemplo seleccionado si no estaba activo
+            if (!isActive) {
+                content.classList.add('active');
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Animación de entrada para las secciones
+        window.addEventListener('load', function() {
+            const sections = document.querySelectorAll('.section, .ejemplos-section');
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '0';
+                    section.style.transform = 'translateY(20px)';
+                    section.style.transition = 'all 0.6s ease';
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
